@@ -16,6 +16,7 @@ class Tree
     def initialize(array)
         @array = array.sort.uniq
         @root = build_tree
+        @order_values = []
     end
 
     def build_tree(array = @array)
@@ -43,11 +44,12 @@ class Tree
     end
 
     def minimum_value_node(data)
-        current_value = data
-        until current_value.left.nil?
-            current_value = current_value.left
+        node = find(data)
+        current = node
+        until current.left.nil?
+            current = current.left
         end
-        return current_value
+        return current
     end
 
     def delete(root = @root, data)
@@ -75,10 +77,21 @@ class Tree
         return root
     end
 
-    def find(data)
+    def find(root = @root, data)
         #accepts data and returns the node which contains this data
-            
-            
+        if root.data < data
+            if root.right.data == data
+                return root.right
+            else
+                find(root.right, data)
+            end
+        else
+            if root.left.data == data
+                return root.left
+            else
+                find(root.left, data)
+            end
+        end
     end
 
     def level_order
@@ -87,36 +100,33 @@ class Tree
         #This method can be implemented using either iteration or recursion (try implementing both!)
     end
 
-    def preorder(root = @root)
+    def preorder(root = @root, values = [])
         #returns an array of values. Should traverse the tree in its respective depth-first order.
-        values = []
-        unless root.nil?
-            values << root.data
-            preorder(root.left)
-            preorder(root.right)
-        end
+        return if root.nil?
+
+        values << root.data
+        preorder(root.left, values)
+        preorder(root.right, values)
         values
     end
     
-    def inorder(root = @root)
+    def inorder(root = @root, values = [])
         #returns an array of values. Should traverse the tree in its respective depth-first order.
-        values = []
-        unless root.nil?
-            inorder(root.left)
-            values << root.data
-            inorder(root.right)
-        end
+        return if root.nil?
+
+        inorder(root.left, values)
+        values << root.data
+        inorder(root.right, values)
         values
     end
     
-    def postorder(root = @root)
+    def postorder(root = @root, values = [])
         #returns an array of values. Should traverse the tree in its respective depth-first order.
-        values = []
-        unless root.nil?
-            postorder(root.left)
-            postorder(root.right)
-            values << root.data
-        end
+        return if root.nil?
+
+        postorder(root.left, values)
+        postorder(root.right, values)
+        values << root.data
         values
     end
 
@@ -131,7 +141,7 @@ class Tree
 
     def rebalance
         #rebalances an unbalanced tree.
-        #Tip: You’ll want to create a level-order array of the tree before passing the array back into the #build_tree method.
+        initialize(self.inorder)
     end
 
     def pretty_print(node = @root, prefix="", is_left = true)
